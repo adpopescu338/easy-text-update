@@ -1,0 +1,8 @@
+# Exclude development and build artifacts
+node_modules/
+dist/
+build/
+
+# Exclude version control files
+.git/
+.gitignore
