@@ -1,4 +1,5 @@
-#easy-text-update
+# easy-text-update
+
 This library offers a simple way to update text in a React Application.
 
 ![gif](media/demo.gif)
@@ -21,7 +22,7 @@ const App = () => {
     <TextUpdateProvider
       text={text} // An object containing the text necessary in the UI
       active={session.user.role === "Admin"} // A boolean value that determines if the text should be updatable
-      save={(updatedText) => sendToApiEndpoint(text)} // A function that will be called when the text is updated. You can handle the saving of the text here
+      save={(updatedText) => sendToApiEndpoint(updatedText)} // A function that will be called when the text is updated. You can handle the saving of the text here
     >
       <App />
     </TextUpdateProvider>
@@ -48,7 +49,7 @@ const Component = () => (
     />
     // With function as child
     <UpdatableText path="Homepage.title">
-      {(title) => <h1>{title}</h1>}
+      {(title, editProps) => <h1 {...editProps}>{title}</h1>}
     </UpdatableText>
     // Without child (a span will be used)
     <UpdatableText path="Homepage.title" />

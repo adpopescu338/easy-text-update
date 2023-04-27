@@ -2,12 +2,19 @@ import React, { ReactElement } from "react";
 import { TriggerEvent } from "./types";
 import { Ctx } from "./Ctx";
 import { get } from "./utils";
-import { UseUpdatableTextConfig } from "./useUpdatableText";
+import {
+  UseUpdatableTextConfig,
+  OpenEditMenuEventHandler,
+} from "./useUpdatableText";
+
+type ElementOrFunction =
+  | ReactElement
+  | ((text: string, editProps: OpenEditMenuEventHandler) => ReactElement);
 
 type UpdatableTextProps = {
   path: string;
-  children?: ReactElement | ((text: string) => ReactElement);
-  component?: ReactElement;
+  children?: ElementOrFunction;
+  component?: ElementOrFunction;
 } & UseUpdatableTextConfig;
 
 export const UpdatableText = ({
@@ -25,6 +32,11 @@ export const UpdatableText = ({
     active,
   } = React.useContext(Ctx);
 
+  if (!text) {
+    console.error("No text provided to UpdatableText");
+    return null;
+  }
+
   if (children && component) {
     throw new Error(
       "Provided both children and component prop to UpdatableText"
@@ -33,37 +45,48 @@ export const UpdatableText = ({
 
   const currentText = get(path, text);
 
-  let elementToRender: ReactElement;
+  const editProps = {
+    ...(active && {
+      [triggerEvent || triggerEventFromCtx]: (e: any) => {
+        e.preventDefault();
+        setState({
+          menuOpen: true,
+          path,
+          text: currentText,
+        });
+      },
+    }),
+  };
 
   if (typeof children === "function") {
-    elementToRender = children(text as string);
-  } else {
-    elementToRender = children || component || <span />;
+    return children(text as string, editProps);
   }
+
+  if (typeof component === "function") {
+    return component(text as string, editProps);
+  }
+
+  const elementToRender: ReactElement = children || component || <span />;
+
+  const canHaveChildren = !["input", "textarea"].includes(
+    elementToRender.type as string
+  );
 
   return {
     ...elementToRender,
     props: {
       ...elementToRender.props,
-      ...(innerHtml && {
-        dangerouslySetInnerHTML: {
-          __html: currentText,
-        },
-      }),
-      ...(returnChildren && {
-        children: currentText,
-      }),
-
-      ...(active && {
-        [triggerEvent || triggerEventFromCtx]: (e: any) => {
-          e.preventDefault();
-          setState({
-            menuOpen: true,
-            path,
-            text: currentText,
-          });
-        },
-      }),
+      ...(canHaveChildren &&
+        innerHtml && {
+          dangerouslySetInnerHTML: {
+            __html: currentText,
+          },
+        }),
+      ...(canHaveChildren &&
+        returnChildren && {
+          children: currentText,
+        }),
+      ...editProps,
     },
   };
 };

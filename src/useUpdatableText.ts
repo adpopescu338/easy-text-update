@@ -9,7 +9,7 @@ export type UseUpdatableTextConfig = {
   innerHtml?: boolean;
 };
 
-type OpenEditMenuEventHandler = {
+export type OpenEditMenuEventHandler = {
   [key in TriggerEvent]?: (e: any) => void;
 };
 
@@ -39,6 +39,14 @@ export const useUpdatableText = (
     triggerEvent: triggerEventFromCtx,
     active,
   } = useContext(Ctx);
+
+  if (!text) {
+    console.error("No text object provided to useUpdatableText");
+    return {
+      text: "",
+      props: {},
+    };
+  }
 
   const currentText = get(path, text);
 

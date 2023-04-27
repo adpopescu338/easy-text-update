@@ -1,6 +1,6 @@
 {
   "name": "easy-text-update",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A React utility component to update text easily",
   "author": "Alexandru-Daniel Popescu <ad.popescu338@yahoo.com>",
   "main": "./dist/cjs/index.js",
@@ -10,7 +10,8 @@
     "build": "yarn build:esm && yarn build:cjs",
     "build:esm": "tsc",
     "build:cjs": "tsc --module commonjs --outDir dist/cjs",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "dev": "nodemon --watch ./src --ext ts,tsx --exec yarn build"
   },
   "keywords": [
     "react",
@@ -27,6 +28,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/react": "^18.0.38",
+    "nodemon": "^2.0.22",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^5.0.4"

@@ -11,7 +11,7 @@ const initialValues = {
 
 type TextUpdateProviderProps = {
   children: React.ReactNode;
-  text: Record<string, any>;
+  text?: Record<string, any>;
   triggerEvent?: TriggerEvent;
   save: (text: Record<string, any>) => any;
   active: boolean;

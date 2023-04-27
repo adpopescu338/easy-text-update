@@ -26,6 +26,14 @@ export const useUpdatableTextContainer = (
     active,
   } = useContext(Ctx);
 
+  if (!text) {
+    console.error("No text object provided");
+    return {
+      getText: () => "",
+      getProps: () => ({}),
+    };
+  }
+
   let current = text;
 
   const pathArray = path.split(".");
