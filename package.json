@@ -1,6 +1,6 @@
 {
   "name": "easy-text-update",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "A React utility component to update text easily",
   "author": "Alexandru-Daniel Popescu <ad.popescu338@yahoo.com>",
   "main": "./dist/cjs/index.js",
@@ -46,6 +46,7 @@
     "README.md"
   ],
   "dependencies": {
-    "tslib": "^2.5.0"
+    "tslib": "^2.5.0",
+    "typescript-plugin-css-modules": "^5.0.1"
   }
 }

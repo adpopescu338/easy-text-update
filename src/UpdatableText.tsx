@@ -34,7 +34,15 @@ export const UpdatableText = ({
 
   if (!text) {
     console.error("No text provided to UpdatableText");
-    return null;
+    if(typeof children === 'function') {
+      return children('', {})
+    }
+
+    if(typeof component === 'function') {
+      return component('', {})
+    }
+
+    return null
   }
 
   if (children && component) {

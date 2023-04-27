@@ -13,25 +13,25 @@ const inputStyles = {
 };
 
 const Input = ({ text, onChange }: InputProps) => {
-  if (typeof text === "number")
-    return (
-      <input
-        autoFocus
-        style={inputStyles}
-        type="number"
-        defaultValue={text}
-        onChange={onChange}
-      />
-    );
+  const ref = React.useRef(null);
 
-  return (
-    <textarea
-      autoFocus
-      style={inputStyles}
-      onChange={onChange}
-      defaultValue={text}
-    />
-  );
+  React.useEffect(() => {
+    if (!ref.current) return;
+    ref.current.selectionStart = text.length;
+    ref.current.selectionEnd = text.length;
+  }, []);
+
+  const baseProps = {
+    ref,
+    style: inputStyles,
+    onChange,
+    defaultValue: text,
+    autoFocus: true,
+  };
+
+  if (typeof text === "number") return <input {...baseProps} type="number" />;
+
+  return <textarea {...baseProps} />;
 };
 
 export default Input;

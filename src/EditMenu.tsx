@@ -56,7 +56,7 @@ export const EditMenu = ({ path, text, onSave, closeMenu }: EditMenuProps) => {
       <h3>
         Edit <q>{path}</q>
       </h3>
-      <br/>
+      <br />
       <hr />
       <div style={inputWrapperStyles}>
         <Input text={text} onChange={(e) => setUpdated(e.target.value)} />
