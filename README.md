@@ -2,6 +2,9 @@
 
 This library offers a simple way to update text in a React Application.
 
+It provides a context provider that wraps your application and either hooks or an HOCs.
+If `active={true}` is passed to the context provider, when you right click on a text element, a dialog will open to edit the text.
+
 ![gif](media/demo.gif)
 
 ## Installation
@@ -15,19 +18,74 @@ yarn add easy-text-update
 ## Setup
 
 ```javascript
-import { TextUpdateProvider } from "easy-text-update";
+import { TextUpdateProvider, TextObject, RevertFn } from "easy-text-update";
+import axios from "axios";
 
-const App = () => {
+const sendToApiEndpoint = (textObject: TextObject, revert: RevertFn) => {
+  axios
+    .post("/api/text-update", textObject)
+    .then(() => {
+      // Handle success
+    })
+    .catch(() => {
+      // Handle error
+      revert();
+    });
+};
+
+const App = ({ Component }) => {
+  const { data: textObject } = useSWR("/api/text", fetcher); // Fetch the text object from an API endpoint. Or import it from a file
   return (
     <TextUpdateProvider
-      text={text} // An object containing the text necessary in the UI
+      text={textObject} // An object containing the text necessary in the UI
       active={session.user.role === "Admin"} // A boolean value that determines if the text should be updatable
-      save={(updatedText) => sendToApiEndpoint(updatedText)} // A function that will be called when the text is updated. You can handle the saving of the text here
+      save={sendToApiEndpoint} // A function that will be called when the text is updated. You can handle the saving of the text here
     >
-      <App />
+      <Component />
     </TextUpdateProvider>
   );
 };
+```
+
+## editMenuComponent
+
+If you want a custom edit menu, you can pass it to the TextUpdateProvider as the `editMenuComponent` prop. The component will receive the following props:
+
+```typescript
+  initialText: string;
+  save: (updatedText: string) => void;
+  closeMenu: () => void;
+```
+
+Example:
+
+```javascript
+import { TextUpdateProvider, EditMenuComponentProps } from "easy-text-update";
+import { useRef } from "react";
+
+const Menu = ({ initialText, save, closeMenu }: EditMenuComponentProps) => {
+  const ref = useRef<HTMLInputElement>();
+  return (
+    <dialog open>
+      <input ref={ref} defaultValue={initialText} />
+      <button onClick={closeMenu}>Close</button>
+      <button onClick={() => save(ref.current.value)}>Save</button>
+    </dialog>
+  );
+};
+
+function App() {
+  return (
+    <TextUpdateProvider
+      text={text}
+      active={true}
+      save={console.log}
+      editMenuComponent={Menu}
+    >
+      <Component />
+    </TextUpdateProvider>
+  );
+}
 ```
 
 ## Usage with HOC
@@ -37,21 +95,37 @@ import { UpdatableText } from "easy-text-update";
 
 const Component = () => (
   <>
-    // With child
+    {/*With child*/}
     <UpdatableText path="Homepage.title">
-      <h1 style={{ color: "blue" }} /> // All props will be passed to the child
-      component. The text will be passed as the children prop
+      <h1 style={{ color: "blue" }} />
+      {/*All props will be passed to the child
+      component. The text will be passed as the children prop*/}
     </UpdatableText>
-    // With component prop
+
+    {/*With function as child*/}
+    <UpdatableText path="Homepage.title">
+      {(title, editProps) => <h1 {...editProps}>{title}</h1>}
+    </UpdatableText>
+
+    {/*With component prop*/}
     <UpdatableText
       path="Homepage.title"
       component={<h1 style={{ color: "blue" }} />}
     />
-    // With function as child
-    <UpdatableText path="Homepage.title">
-      {(title, editProps) => <h1 {...editProps}>{title}</h1>}
-    </UpdatableText>
-    // Without child (a span will be used)
+
+    {/*With component function*/}
+    <UpdatableText
+      path="Homepage.title"
+      component={(text, editProps) => <h1 {...editProps}>{text}</h1>}
+    />
+
+    {/*With JSX element as component prop*/}
+    <UpdatableText
+      path="Homepage.title"
+      component={<h1 style={{ color: "blue" }} />}
+    />
+
+    {/*Without child (a span will be used)*/}
     <UpdatableText path="Homepage.title" />
   </>
 );
@@ -97,7 +171,7 @@ const Component = () => {
 
 In the example above, the getProps function accepts a second parameter of type `UseUpdatableTextConfig` which has the following properties:
 
-- `returnChildren`: A boolean value that determines if the children prop should be added to the element. Defaults to true
+- `returnChildren`: A boolean value that determines if the children prop should be added to the element. Defaults to true. For input and textarea elements, this prop will always be false, therefore it can be omitted.
 - `innerHtml`: A boolean value that determines if the innerHtml prop should be added to the element. Defaults to false.
 - `triggerEvent`: A string value that determines which event should trigger the dialog. Defaults to "onContextMenu". Accepted events are: `onClick, onContextMenu, onDoubleClick, onMouseEnter, onMouseOver`
 
@@ -162,5 +236,5 @@ const Page = () => {
 
 ## Saving the text
 
-When the text is updated, the `save` function passed to the `TextUpdateProvider` will be called with the updated text object.
-You can handle the saving of the text in this function the way you want. Since the text object is a plain javascript object, you can save it to a database or a file; it's up to you.
+When you click "Save" the text is updated in the UI, and the `save` function provided to `TextUpdateProvider` is called with the updated text object.
+In the save function you can handle the saving of the text the way you want. Since the text object is a plain javascript object, you can send it to the backend and save it to a database or a file.

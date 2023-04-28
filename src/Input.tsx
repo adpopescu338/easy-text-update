@@ -9,7 +9,7 @@ const inputStyles = {
   padding: 9,
   fontSize: 16,
   borderRadius: 3,
-  width: "100%",
+
 };
 
 const Input = ({ text, onChange }: InputProps) => {

@@ -1,18 +1,21 @@
 import React, { useState, CSSProperties, useEffect } from "react";
 import Input from "./Input";
 
-const dialogStyles = {
-  top: "40%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  borderRadius: "8px",
-  padding: "9px",
-  boxShadow: "0 0 5px black",
-  minWidth: "300px",
+const dialogStyles: CSSProperties = {
+  width: "100%",
   border: "none",
   pointerEvents: "all",
   zIndex: 999999,
-} as CSSProperties;
+  display: "flex",
+  justifyContent: "center",
+};
+
+const containerStyles: CSSProperties = {
+  borderRadius: "8px",
+  padding: "9px",
+  boxShadow: "0 0 5px black",
+  width: "fit-content"
+};
 
 type EditMenuProps = {
   path: string;
@@ -53,29 +56,30 @@ export const EditMenu = ({ path, text, onSave, closeMenu }: EditMenuProps) => {
 
   return (
     <dialog open style={dialogStyles}>
-      <h3>
-        Edit <q>{path}</q>
-      </h3>
-      <br />
-      <hr />
-      <div style={inputWrapperStyles}>
-        <Input text={text} onChange={(e) => setUpdated(e.target.value)} />
-      </div>
-      <hr />
-      <div style={buttonsWrapperStyle}>
-        <button style={{ ...buttonStyles, color: "red" }} onClick={closeMenu}>
-          Cancel
-        </button>
-        <button
-          style={{
-            ...buttonStyles,
-            color: updated === text ? "grey" : "green",
-          }}
-          disabled={updated === text}
-          onClick={() => onSave(path, updated)}
-        >
-          Save
-        </button>
+      <div style={containerStyles}>
+        <h3>
+          Edit <q>{path}</q>
+        </h3>
+        <hr />
+        <div style={inputWrapperStyles}>
+          <Input text={text} onChange={(e) => setUpdated(e.target.value)} />
+        </div>
+        <hr />
+        <div style={buttonsWrapperStyle}>
+          <button style={{ ...buttonStyles, color: "red" }} onClick={closeMenu}>
+            Cancel
+          </button>
+          <button
+            style={{
+              ...buttonStyles,
+              color: updated === text ? "grey" : "green",
+            }}
+            disabled={updated === text}
+            onClick={() => onSave(path, updated)}
+          >
+            Save
+          </button>
+        </div>
       </div>
     </dialog>
   );

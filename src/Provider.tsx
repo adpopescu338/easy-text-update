@@ -1,20 +1,12 @@
 import React, { useState } from "react";
 import { Ctx } from "./Ctx";
 import { EditMenu } from "./EditMenu";
-import { TriggerEvent } from "./types";
+import { TextUpdateProviderProps, TriggerEvent } from "./types";
 
 const initialValues = {
   menuOpen: false,
   path: "",
   text: "",
-};
-
-type TextUpdateProviderProps = {
-  children: React.ReactNode;
-  text?: Record<string, any>;
-  triggerEvent?: TriggerEvent;
-  save: (text: Record<string, any>) => any;
-  active: boolean;
 };
 
 export const TextUpdateProvider = ({
@@ -23,24 +15,55 @@ export const TextUpdateProvider = ({
   triggerEvent = TriggerEvent.onContextMenu,
   save = () => {},
   active = false,
+  editMenuComponent,
 }: TextUpdateProviderProps) => {
   const [state, setState] = useState(initialValues);
+  const [textObject, setTextObject] = useState(text);
+
+  const onSave = (path: string, updatedText: string) => {
+    const currentText = state.text;
+    setState(initialValues);
+    set(path, updatedText, textObject); // update the text object
+    setTextObject({ ...textObject }); // save the updated text object in the state
+    save(text, () => {
+      // if the save fails, revert the text object to its previous state
+      set(path, currentText, textObject);
+      setTextObject({ ...textObject });
+    });
+  };
+
+  const Menu = () => {
+    if (!active || !state.menuOpen) {
+      return null;
+    }
+
+    if (typeof editMenuComponent === "function") {
+      try {
+        return editMenuComponent({
+          initialText: state.text,
+          closeMenu: () => setState(initialValues),
+          save: (updatedText: string) => onSave(state.path, updatedText),
+        });
+      } catch (e) {
+        console.error(e);
+        throw new Error("editMenuComponent must return a React component");
+      }
+    }
+
+    return (
+      <EditMenu
+        path={state.path}
+        text={state.text}
+        onSave={onSave}
+        closeMenu={() => setState(initialValues)}
+      />
+    );
+  };
 
   return (
-    <Ctx.Provider value={{ text, setState, triggerEvent, active }}>
+    <Ctx.Provider value={{ text: textObject, setState, triggerEvent, active }}>
       {children}
-      {active && state.menuOpen && (
-        <EditMenu
-          path={state.path}
-          text={state.text}
-          onSave={(path, updatedText) => {
-            setState(initialValues);
-            set(path, updatedText, text);
-            save(text);
-          }}
-          closeMenu={() => setState(initialValues)}
-        />
-      )}
+      <Menu />
     </Ctx.Provider>
   );
 };
@@ -54,14 +77,36 @@ const set = (
 
   const [currentProperty] = pathArray;
 
+  const currentValue = obj[currentProperty];
+
   if (pathArray.length === 1) {
-    if (typeof obj[currentProperty] === "undefined") {
-      console.error("Unable to find path");
+    if (currentValue === "undefined") {
+      throw new Error(
+        `The path "${path}" does not exist on the object passed to TextUpdateProvider`
+      );
+    }
+
+    if (typeof currentValue !== "string") {
+      throw new Error(
+        `The path "${path}" does not point to a string on the object passed to TextUpdateProvider`
+      );
     }
 
     obj[currentProperty] = value;
     return;
   }
 
-  set(pathArray.slice(1).join("."), value, obj[currentProperty]);
+  const pathWithoutCurrentProperty = pathArray.slice(1).join(".");
+
+  if (typeof currentValue === "string") {
+    throw new Error(
+      `The path "${path}" does not point to an object on the object passed to TextUpdateProvider`
+    );
+  }
+
+  set(
+    pathWithoutCurrentProperty,
+    value,
+    obj[currentProperty] as TextUpdateProviderProps["text"]
+  );
 };
