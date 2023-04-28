@@ -154,7 +154,7 @@ const Component = () => {
 import { useUpdatableTextContainer } from "easy-text-update";
 
 const Component = () => {
-  const { getText, getProps } = useUpdatableTextContainer("Homepage.form");
+  const { getText, getProps } = useUpdatableTextContainer("Login.form");
   return (
     <>
       <label {...getProps("email.label")} />
@@ -201,31 +201,33 @@ Signup: {
 */
 
 import { useUpdatableTextContainer } from "easy-text-update";
+import { useFormContext } from "react-hook-form";
 
-const Input = ({ name, tPath, xs = 6, ...rest }: Props) => {
+const Input = ({ name, tPath, ...rest }: Props) => {
   const { getText, getProps } = useUpdatableTextContainer(tPath);
+  const { formState } = useFormContext(); // react-hook-form, but you can use any form library
 
   const error = formState.errors[name];
 
   return (
-    <Grid item xs={xs}>
-      <TextField
-        error={!!error}
-        label={<span {...getProps("label")} />}
-        placeholder={getText("placeholder")}
-        helperText={
-          error ? <span {...getProps(`validation.${error.type}`)} /> : undefined
-        }
-        {...rest}
-        inputProps={{
-          ...rest?.inputProps, // copy over any inputProps
-          ...getProps("placeholder", {
-            // this enables editing the placeholder
-            returnChildren: false,
-          }),
-        }}
-      />
-    </Grid>
+    <TextField
+      error={!!error}
+      label={<span {...getProps("label")} />}
+      placeholder={getText("placeholder")} // pass this as a string
+      helperText={
+        // this accepts a string or a JSX element
+        // if you want the label to be editable, you can pass it as a child
+        error ? <span {...getProps(`validation.${error.type}`)} /> : undefined
+      }
+      {...rest} // pass the rest of the props
+      inputProps={{
+        ...rest?.inputProps, // copy over any inputProps
+        ...getProps("placeholder", {
+          // this enables editing the placeholder
+          returnChildren: false,
+        }),
+      }}
+    />
   );
 };
 
@@ -238,3 +240,4 @@ const Page = () => {
 
 When you click "Save" the text is updated in the UI, and the `save` function provided to `TextUpdateProvider` is called with the updated text object.
 In the save function you can handle the saving of the text the way you want. Since the text object is a plain javascript object, you can send it to the backend and save it to a database or a file.
+If the update fails, you can call the revert callback provided to your save function as the second parameter. This will revert the text to the previous state in the UI.

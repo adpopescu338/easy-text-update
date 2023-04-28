@@ -1,6 +1,6 @@
 {
   "name": "easy-text-update",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A React utility component to update text easily",
   "author": "Alexandru-Daniel Popescu <ad.popescu338@yahoo.com>",
   "main": "./dist/cjs/index.js",
