@@ -148,7 +148,7 @@ const Component = () => {
 };
 ```
 
-## Usage with hooks to get access to an object within the text
+## Usage with hooks to get access to an object within the text object passed to the TextUpdateProvider
 
 ```javascript
 import { useUpdatableTextContainer } from "easy-text-update";
