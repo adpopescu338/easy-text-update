@@ -1,11 +1,11 @@
-import { Ctx } from "./Ctx";
+import { Ctx } from "../Ctx";
 import { useContext } from "react";
 import {
   UseUpdatableTextConfig,
   UpdatableElementProps,
   defaultUpdatableConfig,
 } from "./useUpdatableText";
-import { get } from "./utils";
+import get from "lodash/get";
 
 type UseUpdatableTextContainerReturn = {
   getText: (subpath: string) => string;

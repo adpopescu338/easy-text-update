@@ -236,6 +236,67 @@ const Page = () => {
 };
 ```
 
+## One admin page for all the texts
+
+The EditTextPage component can be used as a central page where you can edit your text object.
+![gif](media/edit-page.png)
+Example with React Router:
+
+```javascript
+import { TextUpdateProvider, EditTextPage } from "easy-text-update";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+// Better to import this from a JSON file or from a database
+const text = {
+  title: "Hello World",
+  form: {
+    email: {
+      label: "Email",
+      placeholder: "Enter your email",
+    },
+  },
+  description: "A lot of amazing stuff in here!!!",
+};
+
+function App() {
+  return (
+    <BrowserRouter>
+      <TextUpdateProvider text={text} active save={console.log}>
+        <Routes>
+          <Route path="edit" element={<EditTextPage title="Text Admin" />} />
+          {/* Your other routes */}
+        </Routes>
+      </TextUpdateProvider>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+```
+
+You can pass `onInactive` and `onSave` props to `EditTextPage` to handle the inactive state and the save action. By default, on inactive, null will be returned. For the save action, the save function passed to `TextUpdateProvider` will be called.
+
+## Or build your own text admin page
+
+Use the `useEditTextPageContext` to get access to the text object, the active value and the save function.
+
+```javascript
+import { useEditTextPageContext } from "easy-text-update";
+import { useEffect } from "react";
+
+const EditTextPage = () => {
+  const { textObject, active, save } = useEditTextPageContext();
+
+  useEffect(() => {
+    if (!active) {
+      // Redirect or whatever
+    }
+  }, [active]);
+  
+  return <>Amazing stuff here</>;
+};
+```
+
 ## Saving the text
 
 When you click "Save" the text is updated in the UI, and the `save` function provided to `TextUpdateProvider` is called with the updated text object.

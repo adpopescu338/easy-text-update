@@ -14,13 +14,13 @@ export type EditMenuComponentProps = {
 
 export type TextObject = Record<string, string | Record<string, any>>;
 
-export type RevertFn = () => void;
+export type RevertFn = () => void | Promise<void>;
 
 export type TextUpdateProviderProps = {
   children: React.ReactNode;
   text?: TextObject;
   triggerEvent?: TriggerEvent;
-  save: (textObject: TextObject, RevertFn) => void;
+  save: (textObject: TextObject, revert: RevertFn) => void;
   active: boolean;
   editMenuComponent?:
     | React.ReactElement<EditMenuComponentProps>

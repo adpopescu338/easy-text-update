@@ -1,7 +1,7 @@
-import { TriggerEvent } from "./types";
-import { Ctx } from "./Ctx";
+import { TriggerEvent } from "../types";
+import { Ctx } from "../Ctx";
 import { useContext } from "react";
-import { get } from "./utils";
+import get from "lodash/get";
 
 export type UseUpdatableTextConfig = {
   triggerEvent?: TriggerEvent;

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Ctx } from "./Ctx";
-import { EditMenu } from "./EditMenu";
+import { EditMenu } from "./components/EditMenu";
 import { TextUpdateProviderProps, TriggerEvent } from "./types";
+import set from "lodash/set";
 
 const initialValues = {
   menuOpen: false,
@@ -23,11 +24,11 @@ export const TextUpdateProvider = ({
   const onSave = (path: string, updatedText: string) => {
     const currentText = state.text;
     setState(initialValues);
-    set(path, updatedText, textObject); // update the text object
+    set(textObject, path, updatedText); // update the text object
     setTextObject({ ...textObject }); // save the updated text object in the state
     save(text, () => {
       // if the save fails, revert the text object to its previous state
-      set(path, currentText, textObject);
+      set(textObject, path, currentText);
       setTextObject({ ...textObject });
     });
   };
@@ -61,52 +62,11 @@ export const TextUpdateProvider = ({
   };
 
   return (
-    <Ctx.Provider value={{ text: textObject, setState, triggerEvent, active }}>
+    <Ctx.Provider
+      value={{ text: textObject, setState, triggerEvent, active, save }}
+    >
       {children}
       <Menu />
     </Ctx.Provider>
-  );
-};
-
-const set = (
-  path: string,
-  value: string,
-  obj: TextUpdateProviderProps["text"]
-) => {
-  const pathArray = path.split(".");
-
-  const [currentProperty] = pathArray;
-
-  const currentValue = obj[currentProperty];
-
-  if (pathArray.length === 1) {
-    if (currentValue === "undefined") {
-      throw new Error(
-        `The path "${path}" does not exist on the object passed to TextUpdateProvider`
-      );
-    }
-
-    if (typeof currentValue !== "string") {
-      throw new Error(
-        `The path "${path}" does not point to a string on the object passed to TextUpdateProvider`
-      );
-    }
-
-    obj[currentProperty] = value;
-    return;
-  }
-
-  const pathWithoutCurrentProperty = pathArray.slice(1).join(".");
-
-  if (typeof currentValue === "string") {
-    throw new Error(
-      `The path "${path}" does not point to an object on the object passed to TextUpdateProvider`
-    );
-  }
-
-  set(
-    pathWithoutCurrentProperty,
-    value,
-    obj[currentProperty] as TextUpdateProviderProps["text"]
   );
 };

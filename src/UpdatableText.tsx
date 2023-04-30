@@ -1,11 +1,11 @@
 import React, { ReactElement } from "react";
 import { TriggerEvent } from "./types";
 import { Ctx } from "./Ctx";
-import { get } from "./utils";
+import get from "lodash/get";
 import {
   UseUpdatableTextConfig,
   OpenEditMenuEventHandler,
-} from "./useUpdatableText";
+} from "./hooks/useUpdatableText";
 
 type ElementOrFunction =
   | ReactElement
@@ -51,7 +51,7 @@ export const UpdatableText = ({
     );
   }
 
-  const currentText = get(path, text);
+  const currentText = get(text, path );
 
   const editProps = {
     ...(active && {
